@@ -1,0 +1,174 @@
+/* Dashboard Styles */
+.dashboard {
+    padding: var(--spacing-lg) var(--spacing-md);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: var(--spacing-2xl) var(--spacing-md);
+    margin-bottom: var(--spacing-2xl);
+    background: linear-gradient(180deg, rgba(255, 193, 7, 0.05) 0%, transparent 50%);
+    border-radius: var(--radius-xl);
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--spacing-md);
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 40px rgba(255, 193, 7, 0.3);
+}
+
+.hero-subtitle {
+    max-width: 600px;
+    margin: 0 auto var(--spacing-xl);
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+.hero-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Stats Section */
+.stats-section {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Tournaments Section */
+.tournaments-section {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-lg);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.section-icon {
+    font-size: 1.25rem;
+}
+
+.section-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    transition: color var(--transition-fast);
+}
+
+.section-link:hover {
+    color: var(--accent-gold);
+}
+
+.section-link span:last-child {
+    transition: transform var(--transition-fast);
+}
+
+.section-link:hover span:last-child {
+    transform: translateX(4px);
+}
+
+.tournaments-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+}
+
+/* Loading & Empty States */
+.loading-state {
+    display: flex;
+    justify-content: center;
+    padding: var(--spacing-2xl);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-xl);
+    background: var(--bg-card);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+}
+
+.empty-text {
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-md);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 0.875rem;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .tournaments-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-sm);
+    }
+
+    .stat-card {
+        padding: var(--spacing-md);
+    }
+}

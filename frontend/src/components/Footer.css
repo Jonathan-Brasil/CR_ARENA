@@ -1,0 +1,43 @@
+/* Footer Styles */
+.footer {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: var(--spacing-xl) 0;
+    margin-top: auto;
+}
+
+.footer-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+    text-align: center;
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.footer-logo {
+    font-size: 1.25rem;
+}
+
+.footer-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--accent-gold);
+    letter-spacing: 0.05em;
+}
+
+.footer-year {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.footer-text {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
