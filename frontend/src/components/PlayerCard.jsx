@@ -14,25 +14,25 @@ function PlayerCard({ player }) {
 
     return (
         <Link to={`/jogadores/${player.id}`} className="player-card card card-glow">
-            <div className="player-header">
-                <div className="player-avatar">
+            <div className="card-header">
+                <div className="card-avatar">
                     <span className="avatar-icon">👤</span>
                     {player.trophies && player.trophies >= 7000 && (
                         <span className="trophy-badge">🏅</span>
                     )}
                 </div>
-                <div className="player-info">
-                    <h3 className="player-name">{player.nickname}</h3>
-                    <span className="player-tag">#{player.tag}</span>
+                <div className="card-player-info">
+                    <h3 className="card-player-name">{player.nickname}</h3>
+                    <span className="card-player-tag">#{player.tag}</span>
                     {player.clan && (
-                        <span className="player-clan">
+                        <span className="card-player-clan">
                             <span className="clan-icon">🛡️</span>
                             {player.clan}
                         </span>
                     )}
                 </div>
                 {player.trophies && (
-                    <div className="player-trophies">
+                    <div className="card-trophies">
                         <span className="trophies-icon">🏆</span>
                         <span className="trophies-value">{player.trophies.toLocaleString()}</span>
                         <span className="trophies-label">Troféus</span>
@@ -40,7 +40,7 @@ function PlayerCard({ player }) {
                 )}
             </div>
 
-            <div className="player-stats">
+            <div className="card-stats">
                 <div className="stat-item wins">
                     <span className="stat-icon">✅</span>
                     <span className="stat-value">{player.wins || 0}</span>
