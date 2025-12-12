@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PlayerCard from '../../../components/PlayerCard';
+import API_URL from '../../../config/api';
 import './Players.css';
-
-const API_URL = 'http://localhost:3001';
 
 function Players() {
     const [players, setPlayers] = useState([]);

@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import API_URL from '../../../config/api';
 import './Bracket.css';
-
-const API_URL = 'http://localhost:3001';
 
 function Bracket() {
     const { id } = useParams();

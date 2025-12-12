@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import TournamentCard from '../../../components/TournamentCard';
+import API_URL from '../../../config/api';
 import './Dashboard.css';
-
-const API_URL = 'http://localhost:3001';
 
 function Dashboard() {
     const [stats, setStats] = useState({

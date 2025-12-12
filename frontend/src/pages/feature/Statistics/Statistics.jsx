@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import API_URL from '../../../config/api';
 import './Statistics.css';
-
-const API_URL = 'http://localhost:3001';
 
 function Statistics() {
     const [loading, setLoading] = useState(true);

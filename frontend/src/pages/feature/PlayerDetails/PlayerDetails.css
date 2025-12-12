@@ -922,3 +922,132 @@
     color: var(--text-muted);
     text-align: right;
 }
+
+/* ================================
+   PLAYER TITLE BADGE
+   ================================ */
+.player-title-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin-top: var(--spacing-xs);
+    animation: titleGlow 2s ease-in-out infinite alternate;
+    position: relative;
+    overflow: hidden;
+}
+
+.player-title-badge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    animation: titleShine 3s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+    0% {
+        box-shadow: 0 0 5px var(--title-glow-color, rgba(255, 255, 255, 0.2));
+    }
+
+    100% {
+        box-shadow: 0 0 15px var(--title-glow-color, rgba(255, 255, 255, 0.4));
+    }
+}
+
+@keyframes titleShine {
+    0% {
+        left: -100%;
+    }
+
+    50%,
+    100% {
+        left: 100%;
+    }
+}
+
+.title-emoji {
+    font-size: 1rem;
+}
+
+.title-name {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.title-subtitle {
+    font-weight: 400;
+    font-style: italic;
+    opacity: 0.9;
+}
+
+/* Tier: Legendary (ODIN, A Lenda do CMR) */
+.player-title-badge.tier-legendary {
+    background: linear-gradient(135deg, #FFD700 0%, #FF8C00 50%, #FFD700 100%);
+    color: #1a1a1a;
+    border: 2px solid rgba(255, 215, 0, 0.8);
+    --title-glow-color: rgba(255, 215, 0, 0.5);
+}
+
+/* Tier: Mythic (MR. CATRA) */
+.player-title-badge.tier-mythic {
+    background: linear-gradient(135deg, #9b59b6 0%, #e91e63 50%, #9b59b6 100%);
+    color: white;
+    border: 2px solid rgba(155, 89, 182, 0.8);
+    --title-glow-color: rgba(155, 89, 182, 0.5);
+}
+
+/* Tier: Epic (Modo Tryhard) */
+.player-title-badge.tier-epic {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    border: 2px solid rgba(52, 152, 219, 0.8);
+    --title-glow-color: rgba(52, 152, 219, 0.5);
+}
+
+/* Tier: Rare (Carregador Profissional) */
+.player-title-badge.tier-rare {
+    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    color: white;
+    border: 2px solid rgba(39, 174, 96, 0.8);
+    --title-glow-color: rgba(39, 174, 96, 0.5);
+}
+
+/* Tier: Uncommon (Sortudo do Caramba, Mini-Chefe do Lobby) */
+.player-title-badge.tier-uncommon {
+    background: linear-gradient(135deg, #7f8c8d 0%, #95a5a6 100%);
+    color: white;
+    border: 2px solid rgba(127, 140, 141, 0.8);
+    --title-glow-color: rgba(127, 140, 141, 0.5);
+}
+
+/* Tier: Daddy (Pai de X) */
+.player-title-badge.tier-daddy {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 50%, #e74c3c 100%);
+    color: white;
+    border: 2px solid rgba(231, 76, 60, 0.8);
+    --title-glow-color: rgba(231, 76, 60, 0.5);
+}
+
+/* Responsive title styles */
+@media (max-width: 768px) {
+    .player-title-badge {
+        font-size: 0.6875rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .title-emoji {
+        font-size: 0.875rem;
+    }
+
+    .title-subtitle {
+        display: none;
+    }
+}

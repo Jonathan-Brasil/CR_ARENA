@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import TournamentCard from '../../../components/TournamentCard';
+import API_URL from '../../../config/api';
 import './Tournaments.css';
-
-const API_URL = 'http://localhost:3001';
 
 function Tournaments() {
     const [searchParams, setSearchParams] = useSearchParams();

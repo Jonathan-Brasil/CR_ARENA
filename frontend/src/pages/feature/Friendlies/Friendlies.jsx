@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import API_URL from '../../../config/api';
 import './Friendlies.css';
-
-const API_URL = 'http://localhost:3001';
 
 function Friendlies() {
     const [friendlies, setFriendlies] = useState([]);

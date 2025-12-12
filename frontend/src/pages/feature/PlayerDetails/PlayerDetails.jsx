@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
+import API_URL from '../../../config/api';
 import './PlayerDetails.css';
-
-const API_URL = 'http://localhost:3001';
 
 function PlayerDetails() {
     const { id } = useParams();
@@ -14,6 +13,7 @@ function PlayerDetails() {
     const [friendlyHistory, setFriendlyHistory] = useState([]);
     const [playerTournaments, setPlayerTournaments] = useState([]);
     const [tournamentStats, setTournamentStats] = useState(null);
+    const [playerTitle, setPlayerTitle] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeHistoryTab, setActiveHistoryTab] = useState('all');
     const [selectedTournamentId, setSelectedTournamentId] = useState(tournamentIdFromUrl || '');
@@ -33,11 +33,12 @@ function PlayerDetails() {
 
     const fetchPlayerData = async () => {
         try {
-            const [playerRes, historyRes, friendlyRes, tournamentsRes] = await Promise.all([
+            const [playerRes, historyRes, friendlyRes, tournamentsRes, titleRes] = await Promise.all([
                 fetch(`${API_URL}/api/players/${id}`),
                 fetch(`${API_URL}/api/players/${id}/matches`),
                 fetch(`${API_URL}/api/friendlies/player/${id}`),
-                fetch(`${API_URL}/api/players/${id}/tournaments`)
+                fetch(`${API_URL}/api/players/${id}/tournaments`),
+                fetch(`${API_URL}/api/players/${id}/title`)
             ]);
 
             if (playerRes.ok) {
@@ -58,6 +59,11 @@ function PlayerDetails() {
             if (tournamentsRes.ok) {
                 const tournamentsData = await tournamentsRes.json();
                 setPlayerTournaments(tournamentsData);
+            }
+
+            if (titleRes.ok) {
+                const titleData = await titleRes.json();
+                setPlayerTitle(titleData);
             }
         } catch (error) {
             console.error('Erro ao buscar dados do jogador:', error);
@@ -253,6 +259,13 @@ function PlayerDetails() {
                         </div>
                         <div className="player-info">
                             <h1 className="player-name">{player.nickname}</h1>
+                            {playerTitle?.title && (
+                                <div className={`player-title-badge tier-${playerTitle.tier}`}>
+                                    <span className="title-emoji">{playerTitle.emoji}</span>
+                                    <span className="title-name">{playerTitle.title}</span>
+                                    <span className="title-subtitle">— {playerTitle.subtitle}</span>
+                                </div>
+                            )}
                             <span className="player-tag">#{player.tag}</span>
                             {player.clan && (
                                 <span className="player-clan">

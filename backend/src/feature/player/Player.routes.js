@@ -9,6 +9,7 @@ router.get('/:id', PlayerController.findById);
 router.get('/:id/matches', PlayerController.getMatches);
 router.get('/:id/tournaments', PlayerController.getTournaments);
 router.get('/:id/stats/:tournamentId', PlayerController.getTournamentStats);
+router.get('/:id/title', PlayerController.getTitle);
 router.post('/', PlayerController.create);
 router.put('/:id', PlayerController.update);
 router.delete('/:id', PlayerController.delete);

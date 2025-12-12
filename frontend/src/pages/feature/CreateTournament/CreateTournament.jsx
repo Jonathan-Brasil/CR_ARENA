@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import API_URL from '../../../config/api';
 import './CreateTournament.css';
-
-const API_URL = 'http://localhost:3001';
 
 function CreateTournament() {
     const navigate = useNavigate();

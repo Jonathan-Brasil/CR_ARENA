@@ -1,4 +1,4 @@
-import { Player, Match, Tournament, TournamentPlayer } from '../../config/associations.js';
+import { Player, Match, Tournament, TournamentPlayer, Friendly } from '../../config/associations.js';
 import { Op } from 'sequelize';
 
 // Controller: Player
@@ -298,6 +298,245 @@ export const PlayerController = {
                 path: {
                     upper: upperBracketPath.sort((a, b) => a.round - b.round),
                     lower: lowerBracketPath.sort((a, b) => a.round - b.round)
+                }
+            });
+        } catch (error) {
+            next(error);
+        }
+    },
+
+    // GET /api/players/:id/title - Calcular título do jogador
+    async getTitle(req, res, next) {
+        try {
+            const { id } = req.params;
+
+            // Buscar jogador
+            const player = await Player.findByPk(id);
+            if (!player) {
+                return res.status(404).json({ message: 'Jogador não encontrado' });
+            }
+
+            const wins = player.wins || 0;
+            const losses = player.losses || 0;
+            const total = wins + losses;
+            const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
+
+            // Se win rate <= 60%, nenhum título
+            if (winRate <= 60) {
+                return res.json({ title: null, subtitle: null, tier: null });
+            }
+
+            // Buscar todas as partidas completadas do jogador (torneios + amistosos)
+            const [matches, friendlies] = await Promise.all([
+                Match.findAll({
+                    where: {
+                        [Op.or]: [
+                            { player1Id: id },
+                            { player2Id: id }
+                        ],
+                        winnerId: { [Op.ne]: null }
+                    },
+                    include: [
+                        { model: Player, as: 'player1', attributes: ['id', 'nickname'] },
+                        { model: Player, as: 'player2', attributes: ['id', 'nickname'] }
+                    ]
+                }),
+                Friendly.findAll({
+                    where: {
+                        [Op.or]: [
+                            { player1Id: id },
+                            { player2Id: id }
+                        ],
+                        status: 'completed'
+                    },
+                    include: [
+                        { model: Player, as: 'player1', attributes: ['id', 'nickname'] },
+                        { model: Player, as: 'player2', attributes: ['id', 'nickname'] }
+                    ]
+                })
+            ]);
+
+            // Calcular estatísticas contra cada oponente
+            const opponentStats = {};
+            const playerId = parseInt(id);
+
+            // Processar partidas de torneio
+            matches.forEach(match => {
+                const isPlayer1 = match.player1Id === playerId;
+                const opponent = isPlayer1 ? match.player2 : match.player1;
+                const opponentId = isPlayer1 ? match.player2Id : match.player1Id;
+                const isWin = match.winnerId === playerId;
+
+                if (!opponent) return;
+
+                if (!opponentStats[opponentId]) {
+                    opponentStats[opponentId] = {
+                        player: opponent,
+                        wins: 0,
+                        losses: 0,
+                        friendlyWins: 0,
+                        friendlyLosses: 0
+                    };
+                }
+
+                if (isWin) {
+                    opponentStats[opponentId].wins++;
+                } else {
+                    opponentStats[opponentId].losses++;
+                }
+            });
+
+            // Processar amistosos
+            friendlies.forEach(friendly => {
+                const isPlayer1 = friendly.player1Id === playerId;
+                const opponent = isPlayer1 ? friendly.player2 : friendly.player1;
+                const opponentId = isPlayer1 ? friendly.player2Id : friendly.player1Id;
+                const isWin = friendly.winnerId === playerId;
+
+                if (!opponent) return;
+
+                if (!opponentStats[opponentId]) {
+                    opponentStats[opponentId] = {
+                        player: opponent,
+                        wins: 0,
+                        losses: 0,
+                        friendlyWins: 0,
+                        friendlyLosses: 0
+                    };
+                }
+
+                if (isWin) {
+                    opponentStats[opponentId].friendlyWins++;
+                } else {
+                    opponentStats[opponentId].friendlyLosses++;
+                }
+            });
+
+            const opponentsList = Object.values(opponentStats);
+            const playersDefeated = opponentsList.filter(o => (o.wins + o.friendlyWins) > 0);
+            const allPlayersDefeated = opponentsList.every(o => (o.wins + o.friendlyWins) > (o.losses + o.friendlyLosses));
+
+            // Verificar "Pai de X" - domínio em amistosos (3+ vitórias contra mesmo jogador em amistosos)
+            const dominatedInFriendly = opponentsList.find(o => o.friendlyWins >= 3 && o.friendlyWins > o.friendlyLosses);
+
+            // Verificar vitórias consecutivas (para Mini-Chefe do Lobby)
+            // Ordenar partidas por data para verificar consecutivas
+            const allGames = [
+                ...matches.map(m => ({
+                    winnerId: m.winnerId,
+                    opponentId: m.player1Id === playerId ? m.player2Id : m.player1Id,
+                    completedAt: m.completedAt
+                })),
+                ...friendlies.map(f => ({
+                    winnerId: f.winnerId,
+                    opponentId: f.player1Id === playerId ? f.player2Id : f.player1Id,
+                    completedAt: f.completedAt
+                }))
+            ].sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
+
+            let consecutiveWins = 0;
+            let maxConsecutiveWins = 0;
+            let consecutiveOpponents = new Set();
+            let hasConsecutiveWinsAgainstDifferentPlayers = false;
+
+            for (const game of allGames) {
+                if (game.winnerId === playerId) {
+                    consecutiveWins++;
+                    consecutiveOpponents.add(game.opponentId);
+                    if (consecutiveWins >= 2 && consecutiveOpponents.size >= 2) {
+                        hasConsecutiveWinsAgainstDifferentPlayers = true;
+                    }
+                    maxConsecutiveWins = Math.max(maxConsecutiveWins, consecutiveWins);
+                } else {
+                    consecutiveWins = 0;
+                    consecutiveOpponents.clear();
+                }
+            }
+
+            // Determinar título baseado na prioridade
+            let title = null;
+            let subtitle = null;
+            let tier = null;
+            let emoji = null;
+
+            // 8. "Pai de [Nome]" - Vitórias em amistosos (verificar primeiro como caso especial)
+            if (dominatedInFriendly) {
+                const childName = dominatedInFriendly.player.nickname;
+                title = `Pai de ${childName}`;
+                subtitle = 'Domínio em Amistosos';
+                tier = 'daddy';
+                emoji = '👨';
+            }
+
+            // 1. ODIN – O Todo-Poderoso (maior prioridade depois do Pai)
+            if (!title && allPlayersDefeated && playersDefeated.length > 0 && wins > losses) {
+                title = 'ODIN';
+                subtitle = 'O Pai de Todos';
+                tier = 'legendary';
+                emoji = '⚡';
+            }
+
+            // 2. MR. CATRA – Dono do Lobby
+            if (!title && playersDefeated.length >= 4 && wins > losses) {
+                title = 'MR. CATRA';
+                subtitle = 'Dono do Lobby';
+                tier = 'mythic';
+                emoji = '👑';
+            }
+
+            // 3. "A Lenda do CMR" – Intocável
+            if (!title && winRate >= 80) {
+                title = 'A Lenda do CMR';
+                subtitle = 'Intocável';
+                tier = 'legendary';
+                emoji = '🏆';
+            }
+
+            // 4. "Modo Tryhard" – Frio e Calculista
+            if (!title && winRate >= 70) {
+                title = 'Modo Tryhard';
+                subtitle = 'Frio e Calculista';
+                tier = 'epic';
+                emoji = '🎯';
+            }
+
+            // 5. "Carregador Profissional" – Faz o Trabalho Pesado
+            if (!title && winRate >= 65 && total > 10) {
+                title = 'Carregador Profissional';
+                subtitle = 'Faz o Trabalho Pesado';
+                tier = 'rare';
+                emoji = '💪';
+            }
+
+            // 6. "Sortudo do Caramba" – A Fortuna Sorri
+            if (!title && winRate >= 60 && total < 5) {
+                title = 'Sortudo do Caramba';
+                subtitle = 'A Fortuna Sorri';
+                tier = 'uncommon';
+                emoji = '🍀';
+            }
+
+            // 7. "Mini-Chefe do Lobby" – Respeita o Pai
+            if (!title && hasConsecutiveWinsAgainstDifferentPlayers) {
+                title = 'Mini-Chefe do Lobby';
+                subtitle = 'Respeita o Pai';
+                tier = 'uncommon';
+                emoji = '😤';
+            }
+
+            res.json({
+                title,
+                subtitle,
+                tier,
+                emoji,
+                stats: {
+                    winRate,
+                    wins,
+                    losses,
+                    total,
+                    uniqueOpponentsDefeated: playersDefeated.length,
+                    totalOpponents: opponentsList.length,
+                    allDefeated: allPlayersDefeated
                 }
             });
         } catch (error) {

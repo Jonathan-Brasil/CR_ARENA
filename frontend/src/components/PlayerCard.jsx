@@ -1,7 +1,29 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import API_URL from '../config/api';
 import './PlayerCard.css';
 
 function PlayerCard({ player }) {
+    const [title, setTitle] = useState(null);
+
+    useEffect(() => {
+        const fetchTitle = async () => {
+            try {
+                const res = await fetch(`${API_URL}/api/players/${player.id}/title`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setTitle(data);
+                }
+            } catch (error) {
+                console.error('Erro ao buscar título:', error);
+            }
+        };
+
+        if (player.id) {
+            fetchTitle();
+        }
+    }, [player.id]);
+
     const calculateWinRate = () => {
         const wins = player.wins || 0;
         const losses = player.losses || 0;
@@ -23,6 +45,12 @@ function PlayerCard({ player }) {
                 </div>
                 <div className="card-player-info">
                     <h3 className="card-player-name">{player.nickname}</h3>
+                    {title?.title && (
+                        <div className={`card-player-title tier-${title.tier}`}>
+                            <span className="card-title-emoji">{title.emoji}</span>
+                            <span className="card-title-name">{title.title}</span>
+                        </div>
+                    )}
                     <span className="card-player-tag">#{player.tag}</span>
                     {player.clan && (
                         <span className="card-player-clan">
@@ -63,3 +91,4 @@ function PlayerCard({ player }) {
 }
 
 export default PlayerCard;
+
